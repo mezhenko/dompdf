@@ -2,6 +2,8 @@
 composer.lock
 vendor
 .idea
+*.iml
+dompdf_config.custom.inc.php
 .project
 lib/fonts/*.afm.php
 lib/fonts/*.ufm.php
