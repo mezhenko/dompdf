@@ -8,6 +8,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
+use FontLib\Font as Font;
+
 require_once DOMPDF_LIB_DIR . "/class.pdf.php";
 
 /**

@@ -121,7 +121,7 @@ interface Canvas {
    * @return
    */
   function clipping_roundrectangle($x1, $y1, $w, $h, $tl, $tr, $br, $bl);
-  
+
   /**
    * Ends the last clipping shape
    */  

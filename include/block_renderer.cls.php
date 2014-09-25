@@ -86,6 +86,8 @@ class Block_Renderer extends Abstract_Renderer {
     // find the radius
     $radius = $style->get_computed_border_radius($border_box[2], $border_box[3]); // w, h
 
+    list($x, $y, $w, $h) = $border_box;
+
     // Short-cut: If all the borders are "solid" with the same color and style, and no radius, we'd better draw a rectangle
     if (
         in_array($bp["top"]["style"], array("solid", "dashed", "dotted")) && 
@@ -96,8 +98,7 @@ class Block_Renderer extends Abstract_Renderer {
     ) {
       $props = $bp["top"];
       if ( $props["color"] === "transparent" || $props["width"] <= 0 ) return;
-      
-      list($x, $y, $w, $h) = $border_box;
+
       $width = $style->length_in_pt($props["width"]);
       $pattern = $this->_get_dash_pattern($props["style"], $width);
       $this->_canvas->rectangle($x + $width / 2, $y + $width / 2, $w - $width, $h - $width, $props["color"], $width, $pattern);
@@ -109,7 +110,33 @@ class Block_Renderer extends Abstract_Renderer {
                     $style->length_in_pt($bp["right"]["width"]),
                     $style->length_in_pt($bp["bottom"]["width"]),
                     $style->length_in_pt($bp["left"]["width"]));
-    
+
+    // calculate normalization scalars when radiuses exceeds width/height
+    $rTL = $radius['top-left'];
+    $rTR = $radius['top-right'];
+    $rBL = $radius['bottom-left'];
+    $rBR = $radius['bottom-right'];
+
+    $topRadiiSum = $rTL + $rTR;
+    $topNorm = $topRadiiSum?min(1, $w / $topRadiiSum):0;
+    $rightRadiiSum = $rTR + $rBR;
+    $rightNorm = $rightRadiiSum?min(1, $h / $rightRadiiSum):0;
+    $bottomRadiiSum = $rBL + $rBR;
+    $bottomNorm = $bottomRadiiSum?min(1, $w / $bottomRadiiSum):0;
+    $leftRadiiSum = $rTL + $rBL;
+    $leftNorm = $leftRadiiSum?min(1, $h / $leftRadiiSum):0;
+
+    // calculate ellipse radius
+    $rTLL = $rTL * $leftNorm;
+    $rTLT = $rTL * $topNorm;
+    $rTRT = $rTR * $topNorm;
+    $rTRR = $rTR * $rightNorm;
+    $rBRR = $rBR * $rightNorm;
+    $rBRB = $rBR * $bottomNorm;
+    $rBLB = $rBL * $bottomNorm;
+    $rBLL = $rBL * $leftNorm;
+
+
     foreach ($bp as $side => $props) {
       list($x, $y, $w, $h) = $border_box;
       $length = 0;
@@ -123,38 +150,46 @@ class Block_Renderer extends Abstract_Renderer {
         continue;
 
       switch($side) {
-      case "top":
-        $length = $w;
-        $r1 = $radius["top-left"];
-        $r2 = $radius["top-right"];
-        break;
+        case "top":
+          $length = $w;
+          $r11 = $rTLL;
+          $r12 = $rTLT;
+          $r21 = $rTRT;
+          $r22 = $rTRR;
+          break;
 
-      case "bottom":
-        $length = $w;
-        $y += $h;
-        $r1 = $radius["bottom-left"];
-        $r2 = $radius["bottom-right"];
-        break;
+        case "bottom":
+          $length = $w;
+          $y += $h;
+          $r11 = $rBRR;
+          $r12 = $rBRB;
+          $r21 = $rBLB;
+          $r22 = $rBLL;
+          break;
 
-      case "left":
-        $length = $h;
-        $r1 = $radius["top-left"];
-        $r2 = $radius["bottom-left"];
-        break;
+        case "left":
+          $length = $h;
+          $r11 = $rBLB;
+          $r12 = $rBLL;
+          $r21 = $rTLL;
+          $r22 = $rTLT;
+          break;
 
-      case "right":
-        $length = $h;
-        $x += $w;
-        $r1 = $radius["top-right"];
-        $r2 = $radius["bottom-right"];
-        break;
-      default:
-        break;
+        case "right":
+          $length = $h;
+          $x += $w;
+          $r11 = $rTRT;
+          $r12 = $rTRR;
+          $r21 = $rBRR;
+          $r22 = $rBRB;
+          break;
+        default:
+          break;
       }
       $method = "_border_" . $props["style"];
     
       // draw rounded corners
-      $this->$method($x, $y, $length, $props["color"], $widths, $side, $corner_style, $r1, $r2);
+      $this->$method($x, $y, $length, $props["color"], $widths, $side, $corner_style, $r11, $r12, $r21, $r22);
     }
   }
 

@@ -12,6 +12,8 @@
  * @author  Ryan H. Masten <ryan.masten@gmail.com>
  * @author  Brian Sweeney <eclecticgeek@gmail.com>
  * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @author  Piotr Hitori Bosak <piotr.hitori.bosak@gmail.com>
+ *
  * @license Public Domain http://creativecommons.org/licenses/publicdomain/
  * @package Cpdf
  */
@@ -2914,32 +2916,50 @@ EOT;
   function clippingRectangleRounded($x1, $y1, $w, $h, $rTL, $rTR, $rBR, $rBL) {
     $this->save();
 
-    // start: top edge, left end
-    $this->addContent(sprintf("\n%.3F %.3F m ", $x1, $y1 - $rTL + $h));
+    // calculate normalization scalars when radii exceeds width/height
+    $topRadiiSum = $rTL + $rTR;
+    $topNorm = $topRadiiSum?min(1, $w / $topRadiiSum):0;
+    $rightRadiiSum = $rTR + $rBR;
+    $rightNorm = $rightRadiiSum?min(1, $h / $rightRadiiSum):0;
+    $bottomRadiiSum = $rBL + $rBR;
+    $bottomNorm = $bottomRadiiSum?min(1, $w / $bottomRadiiSum):0;
+    $leftRadiiSum = $rTL + $rBL;
+    $leftNorm = $leftRadiiSum?min(1, $h / $leftRadiiSum):0;
+
+    // calculate ellipse radius
+    $rTLL = $rTL * $leftNorm;
+    $rTLT = $rTL * $topNorm;
+    $rTRT = $rTR * $topNorm;
+    $rTRR = $rTR * $rightNorm;
+    $rBRR = $rBR * $rightNorm;
+    $rBRB = $rBR * $bottomNorm;
+    $rBLB = $rBL * $bottomNorm;
+    $rBLL = $rBL * $leftNorm;
+
+    // start: left edge, top end
+
+    $this->addContent(sprintf("\n%.3F %.3F m ", $x1, $y1 + $h - $rTLL));
 
     // curve: bottom-left corner
-    $this->ellipse($x1 + $rBL, $y1 + $rBL, $rBL, 0, 0, 8, 180, 270, false, false, false, true);
+    $this->ellipse($x1 + $rBLB, $y1 + $rBLL, $rBLB, $rBLL, 0, 8, 180,270, false, false, false, true);
 
-    // line: right edge, bottom end
-    $this->addContent(sprintf("\n%.3F %.3F l ", $x1 + $w - $rBR, $y1));
-
-    // curve: bottom-right corner
-    $this->ellipse($x1 + $w - $rBR, $y1 + $rBR, $rBR, 0, 0, 8, 270, 360, false, false, false, true);
-
-    // line: right edge, top end
-    $this->addContent(sprintf("\n%.3F %.3F l ", $x1 + $w, $y1 + $h - $rTR));
+    // point: bottom edge, right end
+    $this->addContent(sprintf("\n%.3F %.3F l ", $x1 + $rBLB, $y1 ));
 
     // curve: bottom-right corner
-    $this->ellipse($x1 + $w - $rTR, $y1 + $h - $rTR, $rTR, 0, 0, 8, 0, 90, false, false, false, true);
+    $this->ellipse($x1 + $w - $rBRB, $y1 + $rBRR, $rBRB, $rBRR, 0, 8, 270,360, false, false, false, true);
 
-    // line: bottom edge, right end
-    $this->addContent(sprintf("\n%.3F %.3F l ", $x1 + $rTL, $y1 + $h));
+    // point: right edge, top end
+    $this->addContent(sprintf("\n%.3F %.3F l ", $x1 + $w, $y1 + $h - $rTRR ));
 
     // curve: top-right corner
-    $this->ellipse($x1 + $rTL, $y1 + $h - $rTL, $rTL, 0, 0, 8, 90, 180, false, false, false, true);
+    $this->ellipse($x1 + $w - $rTRT, $y1 + $h - $rTRR, $rTRT, $rTRR, 0, 8, 0,90, false, false, false, true);
 
-    // line: top edge, left end
-    $this->addContent(sprintf("\n%.3F %.3F l ", $x1 + $rBL, $y1));
+    // point: top edge, left end
+    $this->addContent(sprintf("\n%.3F %.3F l ", $x1 + $rTLT, $y1 + $h ));
+
+    // curve: top-right corner
+    $this->ellipse($x1 + $rTLT, $y1 + $h - $rTLL, $rTLT, $rTLL, 0, 8, 90,180, false, false, false, true);
 
     // Close & clip
     $this->addContent(" W n");

@@ -1286,17 +1286,7 @@ class Style {
         "bottom-left"  => 0, 
       );
     }
-    
-    $t = $this->__get("border_top_width");
-    $r = $this->__get("border_right_width");
-    $b = $this->__get("border_bottom_width");
-    $l = $this->__get("border_left_width");
-    
-    $rTL = min($rTL, $h - $rBL - $t/2 - $b/2, $w - $rTR - $l/2 - $r/2);
-    $rTR = min($rTR, $h - $rBR - $t/2 - $b/2, $w - $rTL - $l/2 - $r/2);
-    $rBL = min($rBL, $h - $rTL - $t/2 - $b/2, $w - $rBR - $l/2 - $r/2);
-    $rBR = min($rBR, $h - $rTR - $t/2 - $b/2, $w - $rBL - $l/2 - $r/2);
-    
+
     return $this->_computed_border_radius = array(
       $rTL, $rTR, $rBR, $rBL,
       "top-left"     => $rTL, 

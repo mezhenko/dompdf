@@ -53,7 +53,7 @@ class Image_Renderer extends Block_Renderer {
     
     $w = $style->length_in_pt($style->width, $cb["w"]);
     $h = $style->length_in_pt($style->height, $cb["h"]);
-    
+
     if ( $has_border_radius ) {
       list($wt, $wr, $wb, $wl) = array(
         $style->border_top_width,
@@ -61,21 +61,21 @@ class Image_Renderer extends Block_Renderer {
         $style->border_bottom_width,
         $style->border_left_width,
       );
-      
+
       // we have to get the "inner" radius
       if ( $tl > 0 ) {
-        $tl -= ($wt + $wl) / 2;
+          $tl -= ($wt + $wl) / 2;
       }
       if ( $tr > 0 ) {
-        $tr -= ($wt + $wr) / 2;
+          $tr -= ($wt + $wr) / 2;
       }
       if ( $br > 0 ) {
-        $br -= ($wb + $wr) / 2;
+          $br -= ($wb + $wr) / 2;
       }
       if ( $bl > 0 ) {
-        $bl -= ($wb + $wl) / 2;
+          $bl -= ($wb + $wl) / 2;
       }
-      
+
       $this->_canvas->clipping_roundrectangle( $x, $y, $w, $h, $tl, $tr, $br, $bl );
     }
     
