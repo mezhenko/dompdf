@@ -28,18 +28,19 @@ define("DOMPDF_INC_DIR", DOMPDF_DIR . "/include");
  */
 define("DOMPDF_LIB_DIR", DOMPDF_DIR . "/lib");
 
+define("DOMPDF_VENDOR_DIR", DOMPDF_DIR . "/vendor");
 /**
  * Some installations don't have $_SERVER['DOCUMENT_ROOT']
  * http://fyneworks.blogspot.com/2007/08/php-documentroot-in-iis-windows-servers.html
  */
 if( !isset($_SERVER['DOCUMENT_ROOT']) ) {
   $path = "";
-  
+
   if ( isset($_SERVER['SCRIPT_FILENAME']) )
     $path = $_SERVER['SCRIPT_FILENAME'];
   elseif ( isset($_SERVER['PATH_TRANSLATED']) )
     $path = str_replace('\\\\', '\\', $_SERVER['PATH_TRANSLATED']);
-    
+
   $_SERVER['DOCUMENT_ROOT'] = str_replace( '\\', '/', substr($path, 0, 0-strlen($_SERVER['PHP_SELF'])));
 }
 
@@ -88,7 +89,7 @@ def("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
  *
  * This directory contains the cached font metrics for the fonts used by DOMPDF.
  * This directory can be the same as DOMPDF_FONT_DIR
- * 
+ *
  * Note: This directory must exist and be writable by the webserver process.
  */
 def("DOMPDF_FONT_CACHE", DOMPDF_FONT_DIR);
@@ -328,8 +329,9 @@ require_once(DOMPDF_LIB_DIR . "/html5lib/Parser.php");
  * Load autoloader
  */
 if (DOMPDF_ENABLE_AUTOLOAD) {
+  require_once(DOMPDF_VENDOR_DIR . "/autoload.php");
   require_once(DOMPDF_INC_DIR . "/autoload.inc.php");
-  require_once(DOMPDF_LIB_DIR . "/php-font-lib/src/FontLib/Autoloader.php");
+  require_once(DOMPDF_VENDOR_DIR . "/phenx/php-font-lib/src/FontLib/Autoloader.php");
 }
 
 /**
