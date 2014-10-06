@@ -28,7 +28,7 @@ if ( isset( $_POST["html"] ) && $is_local ) {
     $dompdf->set_paper($paper, $orientation);
     $dompdf->render();
 
-    $dompdf->stream("dompdf_out.pdf", array("Attachment" => true));
+    $dompdf->stream("dompdf_out.pdf", array("Attachment" => !isset( $_POST["preview"])));
 
     exit(0);
 }
