@@ -742,33 +742,84 @@ function imagecreatefrombmp($filename) {
 }
 }
 
+function render_svg($filepath,$w,$h){
+    static $svgRenderCache = array();
+
+    if(!isset($svgRenderCache[$filepath.$w.$h])){
+
+
+        $filename = tempnam(dirname($filepath), "ca_dompdf_img_");
+        $svg = file_get_contents($filepath);
+
+        $renderSupersample = DOMPDF_SVG_SUPERSAMPLE;
+
+        $rsvg = rsvg_create($svg);
+        $dim = $rsvg->getDimensions();
+
+        $scaleW =  $w / $dim['width'];
+        $scaleH = $h / $dim['height'];
+        $matrixScale = min($scaleW,$scaleH);
+
+        $csf = cairo_image_surface_create ( CairoFormat::ARGB32 , floor($w*$renderSupersample) , floor($h*$renderSupersample) );
+        $cctx = new CairoContext($csf);
+        $cctx->setMatrix(CairoMatrix::initScale($renderSupersample * $matrixScale,$renderSupersample * $matrixScale));
+        $rsvg->render($cctx);
+
+        $csf->writeToPng($filename);
+        return $svgRenderCache[$filepath.$w.$h] = $filename;
+    }else{
+        return $svgRenderCache[$filepath.$w.$h];
+    }
+}
+
+function get_svg_data($blob){
+    $svg = $blob;
+    try{
+        $rsvg = rsvg_create($svg);
+    }catch(Exception $e){
+        return array(0,0,IMAGETYPE_UNKNOWN);
+    }
+    $dim = $rsvg->getDimensions();
+    return array($dim['width'], $dim['height'], IMAGETYPE_SVG);
+}
+
 /**
  * getimagesize doesn't give a good size for 32bit BMP image v5
  * 
  * @param string $filename
  * @return array The same format as getimagesize($filename)
  */
+
+
 function dompdf_getimagesize($filename) {
-  static $cache = array();
-  
-  if ( isset($cache[$filename]) ) {
-    return $cache[$filename];
+  static $sizeCache = array();
+
+  if ( isset($sizeCache[$filename]) ) {
+    return $sizeCache[$filename];
   }
-  
-  list($width, $height, $type) = getimagesize($filename);
-  
-  if ( $width == null || $height == null ) {
-    $data = file_get_contents($filename, null, null, 0, 26);
-    
-    if ( substr($data, 0, 2) === "BM" ) {
-      $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
-      $width  = (int)$meta['width'];
-      $height = (int)$meta['height'];
-      $type   = IMAGETYPE_BMP;
-    }
+
+  switch(mime_content_type($filename)){
+      case 'image/svg':
+      case 'image/svg+xml':
+          return $sizeCache[$filename] = get_svg_data(file_get_contents($filename));
+
+      default:
+          list($width, $height, $type) = getimagesize($filename);
+
+          if ( $width == null || $height == null ) {
+              $data = file_get_contents($filename, null, null, 0, 26);
+
+              if ( substr($data, 0, 2) === "BM" ) {
+                  $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
+                  $width  = (int)$meta['width'];
+                  $height = (int)$meta['height'];
+                  $type   = IMAGETYPE_BMP;
+              }
+          }
+
+          return $sizeCache[$filename] = array($width, $height, $type);
   }
-  
-  return $cache[$filename] = array($width, $height, $type);
+
 }
 
 /**

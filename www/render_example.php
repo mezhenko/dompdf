@@ -15,6 +15,12 @@ if ( isset( $_POST["html"] ) && $is_local ) {
         stripslashes($_POST["html"])
         :$_POST["html"];
 
+    if(isset( $_POST["preview"])){
+        echo $html;
+        exit(0);
+    }
+
+
     $paper = isset($_POST["paper"])?
         $_POST["paper"]
         :'a4';

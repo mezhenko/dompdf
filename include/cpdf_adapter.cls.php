@@ -621,6 +621,14 @@ class CPDF_Adapter implements Canvas {
       if ($debug_png) print '!!!bmp or gif!!!';
       // @todo use cache for BMP and GIF
       $img = $this->_convert_gif_bmp_to_png($img, $type);
+      $this->_pdf->addPngFromFile($img, $x, $this->y($y) - $h, $w, $h);
+      break;
+
+    case IMAGETYPE_SVG:
+        if ($debug_png) print '!!!svg!!!';
+        $img = render_svg($img, $w, $h);
+        $this->_pdf->addPngFromFile($img, $x, $this->y($y) - $h, $w, $h);
+        break;
 
     case IMAGETYPE_PNG:
       if ($debug_png) print '!!!png!!!';

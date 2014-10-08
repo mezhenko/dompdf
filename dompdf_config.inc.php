@@ -13,6 +13,8 @@ if ( class_exists( 'DOMPDF' , false ) ) { return; }
 
 PHP_VERSION >= 5.0 or die("DOMPDF requires PHP 5.0+");
 
+define('IMAGETYPE_SVG',100);
+
 /**
  * The root of your DOMPDF installation
  */
@@ -27,6 +29,11 @@ define("DOMPDF_INC_DIR", DOMPDF_DIR . "/include");
  * The location of the DOMPDF lib directory
  */
 define("DOMPDF_LIB_DIR", DOMPDF_DIR . "/lib");
+
+/**
+ * Path used for saving temporary files
+ */
+define("DOMPDF_TMP_DIR", sys_get_temp_dir());
 
 define("DOMPDF_VENDOR_DIR", DOMPDF_DIR . "/vendor");
 /**
@@ -43,20 +50,6 @@ if( !isset($_SERVER['DOCUMENT_ROOT']) ) {
 
   $_SERVER['DOCUMENT_ROOT'] = str_replace( '\\', '/', substr($path, 0, 0-strlen($_SERVER['PHP_SELF'])));
 }
-
-/** Include the custom config file if it exists */
-if ( file_exists(DOMPDF_DIR . "/dompdf_config.custom.inc.php") ){
-  require_once(DOMPDF_DIR . "/dompdf_config.custom.inc.php");
-}
-
-//FIXME: Some function definitions rely on the constants defined by DOMPDF. However, might this location prove problematic?
-require_once(DOMPDF_INC_DIR . "/functions.inc.php");
-
-/**
- * Username and password used by the configuration utility in www/
- */
-def("DOMPDF_ADMIN_USERNAME", "user");
-def("DOMPDF_ADMIN_PASSWORD", "password");
 
 /**
  * The location of the DOMPDF font directory
@@ -82,7 +75,22 @@ def("DOMPDF_ADMIN_PASSWORD", "password");
  * Times-Roman, Times-Bold, Times-BoldItalic, Times-Italic,
  * Symbol, ZapfDingbats.
  */
-def("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
+define("DOMPDF_FONT_DIR", DOMPDF_DIR . "/lib/fonts/");
+
+
+/** Include the custom config file if it exists */
+if ( file_exists(DOMPDF_DIR . "/dompdf_config.custom.inc.php") ){
+  require_once(DOMPDF_DIR . "/dompdf_config.custom.inc.php");
+}
+
+//FIXME: Some function definitions rely on the constants defined by DOMPDF. However, might this location prove problematic?
+require_once(DOMPDF_INC_DIR . "/functions.inc.php");
+
+/**
+ * Username and password used by the configuration utility in www/
+ */
+def("DOMPDF_ADMIN_USERNAME", "user");
+def("DOMPDF_ADMIN_PASSWORD", "password");
 
 /**
  * The location of the DOMPDF font cache directory
@@ -102,6 +110,16 @@ def("DOMPDF_FONT_CACHE", DOMPDF_FONT_DIR);
  * using the PFDLib back end.
  */
 def("DOMPDF_TEMP_DIR", sys_get_temp_dir());
+
+/**
+ * Defines the quality of rendered SVG files, sets factor of supersampling svg files
+ * For pdfs designed to be viewed on computer display, set this to 1
+ * for pdfs designeb to be printed, set to min 3
+ *
+ * The higher the value, the more pdf weight, but the svg graphics will look better.
+ * Warning: Setting this value too high (like more than 10) may trigger "cairo_image_surface_create(): out of memory" exception
+ */
+def("DOMPDF_SVG_SUPERSAMPLE", 3);
 
 /**
  * ==== IMPORTANT ====
@@ -205,6 +223,7 @@ def("DOMPDF_DEFAULT_PAPER_SIZE", "letter");
  * @var string
  */
 def("DOMPDF_DEFAULT_FONT", "serif");
+
 
 /**
  * Image DPI setting

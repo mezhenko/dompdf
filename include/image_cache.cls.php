@@ -24,7 +24,7 @@ class Image_Cache {
    * @var array
    */
   static protected $_cache = array();
-  
+
   /**
    * The url to the "broken image" used when images can't be loade
    * 
@@ -121,17 +121,24 @@ class Image_Cache {
         list($width, $height, $type) = dompdf_getimagesize($resolved_url);
         
         // Known image type
-        if ( $width && $height && in_array($type, array(IMAGETYPE_GIF, IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_BMP)) ) {
-          //Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
-          //Only execute on successful caching of remote image.
-          if ( $enable_remote && $remote || $data_uri ) {
-            self::$_cache[$full_url] = $resolved_url;
-          }
-        }
-        
-        // Unknown image type
-        else {
-          throw new DOMPDF_Image_Exception("Image type unknown");
+        if ( $width && $height ){
+            if ($enable_remote && $remote || $data_uri) {
+                self::$_cache[$full_url] = $resolved_url;
+            }
+            switch($type) {
+                case IMAGETYPE_GIF:
+                case IMAGETYPE_PNG:
+                case IMAGETYPE_JPEG:
+                case IMAGETYPE_SVG:
+                case IMAGETYPE_BMP:
+                    //Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
+                    //Only execute on successful caching of remote image.
+                    break;
+                default:
+                    throw new DOMPDF_Image_Exception("Image type unsupported");
+            }
+        }else{
+            throw new DOMPDF_Image_Exception("Image type unknown");
         }
       }
     }
