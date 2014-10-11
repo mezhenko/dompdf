@@ -2351,7 +2351,7 @@ EOT;
             sort($subset);
 
             // Load font
-            $font_obj = Font::load($fbfile);
+            $font_obj = FontLib\Font::load($fbfile);
             $font_obj->parse();
 
             // Define subset
@@ -2360,12 +2360,12 @@ EOT;
 
             // Write new font
             $tmp_name = "$fbfile.tmp.".uniqid();
-            $font_obj->open($tmp_name, Font_Binary_Stream::modeWrite);
+            $font_obj->open($tmp_name, FontLib\Binary_Stream::modeWrite);
             $font_obj->encode(array("OS/2"));
             $font_obj->close();
 
             // Parse the new font to get cid2gid and widths
-            $font_obj = Font::load($tmp_name);
+            $font_obj = FontLib\Font::load($tmp_name);
 
             // Find Unicode char map table
             $subtable = null;
