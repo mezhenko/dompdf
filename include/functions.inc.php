@@ -327,7 +327,7 @@ function is_percent($value) {
  * @return array The result with charset, mime type and decoded data
  */
 function parse_data_uri($data_uri) {
-  if (!preg_match('/^data:(?P<mime>[a-z0-9\/+-.]+)(;charset=(?P<charset>[a-z0-9-])+)?(?P<base64>;base64)?\,(?P<data>.*)?/i', $data_uri, $match)) {
+  if (!preg_match('/^data:(?P<mime>[a-z0-9\/+-.]+)(;charset=(?P<charset>[a-z0-9-])+)?(?P<base64>;base64)?\,(?P<data>.*)?/sim', $data_uri, $match)) {
     return false;
   }
   

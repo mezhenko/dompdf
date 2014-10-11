@@ -149,6 +149,14 @@ class Frame_Tree {
     }
   }
 
+  private static function exportOuterXML(DOMNode $elem){
+      // loop through all childNodes, getting xml
+      $children = $elem->childNodes;
+      $tmp_doc = new DOMDocument();
+      $tmp_doc->appendChild($tmp_doc->importNode($elem,true));
+      return $tmp_doc->saveXML();
+  }
+
   /**
    * Recursively adds {@link Frame} objects to the tree
    *
@@ -161,54 +169,70 @@ class Frame_Tree {
    * @return Frame
    */
   protected function _build_tree_r(DOMNode $node) {
-    
-    $frame = new Frame($node);
-    $id = $frame->get_id();
-    $this->_registry[ $id ] = $frame;
-    
-    if ( !$node->hasChildNodes() ) {
-      return $frame;
+
+    $node_name = mb_strtolower($node->nodeName);
+
+    switch($node_name){
+        // Let's dump inner svg elements into src attribute so the image renderer could take care of it
+        case 'svg':
+            /** @var DOMElement $node; */
+            if($node->hasChildNodes()){
+                $node->setAttribute('src','data:image/svg+xml,'.self::exportOuterXML($node));
+            }
+            $frame = new Frame($node);
+            $id = $frame->get_id();
+            $this->_registry[ $id ] = $frame;
+
+            return $frame;
+        default:
+            $frame = new Frame($node);
+            $id = $frame->get_id();
+            $this->_registry[ $id ] = $frame;
+
+            if ( !$node->hasChildNodes() ) {
+                return $frame;
+            }
+
+            // Fixes 'cannot access undefined property for object with
+            // overloaded access', fix by Stefan radulian
+            // <stefan.radulian@symbion.at>
+            //foreach ($node->childNodes as $child) {
+
+            // Store the children in an array so that the tree can be modified
+            $children = array();
+            for ($i = 0; $i < $node->childNodes->length; $i++) {
+                $children[] = $node->childNodes->item($i);
+            }
+
+            foreach ($children as $child) {
+                $node_name = mb_strtolower($child->nodeName);
+
+                // Skip non-displaying nodes
+                if ( in_array($node_name, self::$_HIDDEN_TAGS) )  {
+                    if ( $node_name !== "head" && $node_name !== "style" ) {
+                        $child->parentNode->removeChild($child);
+                    }
+
+                    continue;
+                }
+
+                // Skip empty text nodes
+                if ( $node_name === "#text" && $child->nodeValue == "" ) {
+                    $child->parentNode->removeChild($child);
+                    continue;
+                }
+
+                // Skip empty image nodes
+                if ( $node_name === "img" && $child->getAttribute("src") == "" ) {
+                    $child->parentNode->removeChild($child);
+                    continue;
+                }
+
+                $frame->append_child($this->_build_tree_r($child), false);
+            }
+
+            return $frame;
     }
-
-    // Fixes 'cannot access undefined property for object with
-    // overloaded access', fix by Stefan radulian
-    // <stefan.radulian@symbion.at>    
-    //foreach ($node->childNodes as $child) {
-
-    // Store the children in an array so that the tree can be modified
-    $children = array();
-    for ($i = 0; $i < $node->childNodes->length; $i++) {
-      $children[] = $node->childNodes->item($i);
-    }
-
-    foreach ($children as $child) {
-      $node_name = mb_strtolower($child->nodeName);
-      
-      // Skip non-displaying nodes
-      if ( in_array($node_name, self::$_HIDDEN_TAGS) )  {
-        if ( $node_name !== "head" && $node_name !== "style" ) {
-          $child->parentNode->removeChild($child);
-        }
-        
-        continue;
-      }
-
-      // Skip empty text nodes
-      if ( $node_name === "#text" && $child->nodeValue == "" ) {
-        $child->parentNode->removeChild($child);
-        continue;
-      }
-
-      // Skip empty image nodes
-      if ( $node_name === "img" && $child->getAttribute("src") == "" ) {
-        $child->parentNode->removeChild($child);
-        continue;
-      }
-      
-      $frame->append_child($this->_build_tree_r($child), false);
-    }
-    
-    return $frame;
   }
   
   public function insert_node(DOMNode $node, DOMNode $new_node, $pos) {
