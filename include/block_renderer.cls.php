@@ -24,6 +24,10 @@ class Block_Renderer extends Abstract_Renderer {
     
     $this->_set_opacity( $frame->get_opacity( $style->opacity ) );
 
+    if ( $node->nodeName === "html" ) {
+        die('a');
+    }
+
     if ( $node->nodeName === "body" ) {
       $h = $frame->get_containing_block("h") - $style->length_in_pt(array(
         $style->margin_top,
@@ -31,6 +35,12 @@ class Block_Renderer extends Abstract_Renderer {
         $style->border_bottom_width,
         $style->margin_bottom),
       $style->width);
+
+      if ( ($bg = $style->_dompdf_paper_color)  !== "white" ) {
+          $ph = $this->_canvas->get_height();
+          $pw = $this->_canvas->get_width();
+          $this->_canvas->filled_rectangle( 0, 0, $pw, $ph, CSS_Color::parse($bg) );
+      }
     }
 
     // Handle anchors & links
@@ -44,7 +54,7 @@ class Block_Renderer extends Abstract_Renderer {
     if ( $tl + $tr + $br + $bl > 0 ) {
       $this->_canvas->clipping_roundrectangle( $x, $y, $w, $h, $tl, $tr, $br, $bl );
     }
-      
+
     if ( ($bg = $style->background_color) !== "transparent" ) {
       $this->_canvas->filled_rectangle( $x, $y, $w, $h, $bg );
     }

@@ -492,7 +492,7 @@ br {
   display: -dompdf-br;
 }
 
-img, img_generated {
+img, img_generated, svg {
   display: -dompdf-image;
 }
 

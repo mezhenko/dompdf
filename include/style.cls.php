@@ -205,6 +205,7 @@ class Style {
       $d["background_image"] = "none";
       $d["background_image_resolution"] = "normal";
       $d["_dompdf_background_image_resolution"] = $d["background_image_resolution"];
+      $d["_dompdf_paper_color"] = "white";
       $d["background_position"] = "0% 0%";
       $d["background_repeat"] = "repeat";
       $d["background"] = "";
