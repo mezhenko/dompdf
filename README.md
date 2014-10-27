@@ -28,12 +28,15 @@ Features
  * supports complex tables, including row & column spans, separate & collapsed
    border models, individual cell styling
  * image support (gif, png (8, 24 and 32 bit with alpha channel), bmp & jpeg)
+ * svg support (both inline and external)
  * no dependencies on external PDF libraries, thanks to the R&OS PDF class
  * inline PHP support
  
 Requirements
 ============
- * PHP 5.0+ (5.3+ recommended)
+ * PHP 5.3+
+ * RSVG extension (for svg support)
+ * CAIRO extension (for svg support)
  * DOM extension
  * GD extension
 
