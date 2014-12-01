@@ -89,8 +89,8 @@ class Cached_PDF_Decorator extends CPDF_Adapter implements Canvas {
     $this->_pdf->circle($x, $y, $r1, $color, $width, $style, $fill);
   }
 
-  function image($img_url, $x, $y, $w, $h, $resolution = "normal") {
-    $this->_pdf->image($img_url, $x, $y, $w, $h, $resolution);
+  function image($img_url, $x, $y, $w, $h, $resolution = "normal", $node = null) {
+    $this->_pdf->image($img_url, $x, $y, $w, $h, $resolution, $node);
   }
   
   function text($x, $y, $text, $font, $size, $color = array(0,0,0), $word_space = 0.0, $char_space = 0.0, $angle = 0.0) {

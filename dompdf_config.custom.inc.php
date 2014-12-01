@@ -8,7 +8,7 @@ define("DOMPDF_UNICODE_ENABLED", true);
 define("DOMPDF_DEFAULT_MEDIA_TYPE", "print");
 define("DOMPDF_DEFAULT_PAPER_SIZE", "A4");
 //define("DOMPDF_DEFAULT_FONT", "serif");
-define("DOMPDF_DPI", 72);
+define("DOMPDF_DPI", 100);
 define("DOMPDF_SVG_SUPERSAMPLE", 4);
 //define("DOMPDF_ENABLE_PHP", true);
 define("DOMPDF_ENABLE_REMOTE", true);

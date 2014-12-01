@@ -603,7 +603,7 @@ class CPDF_Adapter implements Canvas {
     $this->_pdf->ellipse($x, $this->y($y), $r1, 0, 0, 8, 0, 360, 1, $fill);
   }
 
-  function image($img, $x, $y, $w, $h, $resolution = "normal") {
+  function image($img, $x, $y, $w, $h, $resolution = "normal", $node = null) {
     list($width, $height, $type) = dompdf_getimagesize($img);
     
     $debug_png = $this->_dompdf->get_option("debug_png");
@@ -626,7 +626,7 @@ class CPDF_Adapter implements Canvas {
 
     case IMAGETYPE_SVG:
         if ($debug_png) print '!!!svg!!!';
-        $img = render_svg($img, $w, $h);
+        $img = render_svg($img, $w, $h, $node);
         $this->_pdf->addPngFromFile($img, $x, $this->y($y) - $h, $w, $h);
         break;
 
