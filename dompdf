@@ -1,0 +1,125 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Command line utility to use dompdf.
+ * Reads input from standard input and writes output to standard output
+ *
+ * @package dompdf
+ * @link    http://dompdf.github.com/
+ * @author  Jakub Kosiński <jakub@kosinski.info>
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ */
+
+/**
+ * Display command line usage
+ */
+function dompdf_usage() {
+  $default_paper_size = DOMPDF_DEFAULT_PAPER_SIZE;
+
+  echo <<<EOD
+
+Usage: {$_SERVER["argv"][0]} [options]
+
+Options:
+ -h             Show this message
+ -p size        Paper size; something like 'letter', 'A4', 'legal', etc.
+                  The default is '$default_paper_size'
+ -o orientation Either 'portrait' or 'landscape'.  Default is 'portrait'
+ -b path        Set the 'document root' of the html_file.
+                  Relative urls (for stylesheets) are resolved using this directory.
+                  Default is the directory of html_file.
+
+EOD;
+exit;
+}
+
+/**
+ * Parses command line options
+ *
+ * @return array The command line options
+ */
+function getoptions() {
+
+  $opts = array();
+
+  if ( $_SERVER["argc"] == 1 )
+    return $opts;
+
+  $i = 1;
+  while ($i < $_SERVER["argc"]) {
+
+    switch ($_SERVER["argv"][$i]) {
+
+    case "--help":
+    case "-h":
+      $opts["h"] = true;
+      $i++;
+      break;
+
+    case "-p":
+      if ( !isset($_SERVER["argv"][$i+1]) )
+        die("-p switch requires a size parameter\n");
+      $opts["p"] = $_SERVER["argv"][$i+1];
+      $i += 2;
+      break;
+
+    case "-o":
+      if ( !isset($_SERVER["argv"][$i+1]) )
+        die("-o switch requires an orientation parameter\n");
+      $opts["o"] = $_SERVER["argv"][$i+1];
+      $i += 2;
+      break;
+
+    case "-b":
+      if ( !isset($_SERVER["argv"][$i+1]) )
+        die("-b switch requires a path parameter\n");
+      $opts["b"] = $_SERVER["argv"][$i+1];
+      $i += 2;
+      break;
+
+    }
+
+  }
+  return $opts;
+}
+
+require_once("dompdf_config.inc.php");
+
+$options = array();
+$opts = getoptions();
+
+if ( isset($opts["h"]) ) {
+  dompdf_usage();
+  exit;
+}
+
+if ( isset($opts["p"]) )
+  $paper = $opts["p"];
+else
+  $paper = DOMPDF_DEFAULT_PAPER_SIZE;
+
+if ( isset($opts["o"]) )
+  $orientation = $opts["o"];
+else
+  $orientation = "portrait";
+
+if ( isset($opts["b"]) )
+  $base_path = $opts["b"];
+
+$html = "";
+while ( !feof(STDIN) )
+  $html .= fread(STDIN, 4096);
+
+$dompdf = new DOMPDF();
+$dompdf->load_html($html);
+
+if ( isset($base_path) ) {
+  $dompdf->set_base_path($base_path);
+}
+
+$dompdf->set_paper($paper, $orientation);
+$dompdf->render();
+
+echo $dompdf->output( array("compress" => 0) );
+exit(0);
+?>
