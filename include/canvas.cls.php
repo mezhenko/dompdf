@@ -205,20 +205,21 @@ interface Canvas {
    */   
   function circle($x, $y, $r, $color, $width = null, $style = null, $fill = false);
 
-  /**
-   * Add an image to the pdf.
-   *
-   * The image is placed at the specified x and y coordinates with the
-   * given width and height.
-   *
-   * @param string $img_url the path to the image
-   * @param float $x x position
-   * @param float $y y position
-   * @param int $w width (in pixels)
-   * @param int $h height (in pixels)
-   * @param string $resolution The resolution of the image
-   */
-  function image($img_url, $x, $y, $w, $h, $resolution = "normal");
+    /**
+     * Add an image to the pdf.
+     *
+     * The image is placed at the specified x and y coordinates with the
+     * given width and height.
+     *
+     * @param string $img_url the path to the image
+     * @param float $x x position
+     * @param float $y y position
+     * @param int $w width (in pixels)
+     * @param int $h height (in pixels)
+     * @param string $resolution The resolution of the image
+     * @param DOMElement|DOMText $node
+     */
+  function image($img_url, $x, $y, $w, $h, $resolution = "normal", $node = null);
 
   /**
    * Add an arc to the PDF

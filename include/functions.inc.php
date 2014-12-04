@@ -742,12 +742,10 @@ function imagecreatefrombmp($filename) {
 }
 }
 
-function render_svg($filepath,$w,$h){
+function render_svg($filepath,$w,$h, DOMElement $node){
     static $svgRenderCache = array();
 
     if(!isset($svgRenderCache[$filepath.$w.$h])){
-
-
         $filename = tempnam(dirname($filepath), "ca_dompdf_img_");
         $svg = file_get_contents($filepath);
 
@@ -756,13 +754,25 @@ function render_svg($filepath,$w,$h){
         $rsvg = rsvg_create($svg);
         $dim = $rsvg->getDimensions();
 
-        $scaleW =  $w / $dim['width'];
-        $scaleH = $h / $dim['height'];
+        if($node){
+            $viewBox = explode(' ',$node->getAttribute('viewbox'));
+            if(count($viewBox) == 4){
+                list($innerx, $innery, $innerwidth, $innerheight) = $viewBox;
+            }else{
+                list($innerx, $innery, $innerwidth, $innerheight) = [0, 0, $dim['width'], $dim['height']];
+            }
+        }else{
+            list($innerx, $innery, $innerwidth, $innerheight) = [0, 0, $dim['width'], $dim['height']];
+        }
+
+        $scaleW =  $w / $innerwidth;
+        $scaleH = $h / $innerheight;
         $matrixScale = min($scaleW,$scaleH);
 
         $csf = cairo_image_surface_create ( CairoFormat::ARGB32 , floor($w*$renderSupersample) , floor($h*$renderSupersample) );
         $cctx = new CairoContext($csf);
         $cctx->setMatrix(CairoMatrix::initScale($renderSupersample * $matrixScale,$renderSupersample * $matrixScale));
+        $cctx->translate(-$innerx,$innery);
         $rsvg->render($cctx);
 
         $csf->writeToPng($filename);

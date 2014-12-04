@@ -92,7 +92,7 @@ class Image_Renderer extends Block_Renderer {
                            $style->color, $spacing);
     }
     else {
-      $this->_canvas->image( $src, $x, $y, $w, $h, $style->image_resolution);
+      $this->_canvas->image( $src, $x, $y, $w, $h, $style->image_resolution, $frame->get_node());
     }
     
     if ( $has_border_radius ) {
