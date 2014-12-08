@@ -110,13 +110,18 @@
   ),
   'open sans' => 
   array (
-    'normal' => DOMPDF_FONT_DIR . 'f449b94b9857fb13c7f9490b8fb15897',
-    'bold' => DOMPDF_FONT_DIR . '160f93f1ff7bcdd76f009e87533db783',
-    'bold_italic' => DOMPDF_FONT_DIR . '66f9468ba07d4e7a4c30f52aecdd3416',
-    'italic' => DOMPDF_FONT_DIR . 'e29809c0f37cc28afa8624c68d70fc56',
+    'normal' => DOMPDF_FONT_DIR . 'e5ba65ed6f2bef4821dd9ebfa44869ec',
+  ),
+  'glyphicons halflings' => 
+  array (
+    'normal' => DOMPDF_FONT_DIR . 'fcc4244316f07b13cf0703e6a41066af',
   ),
   'fontawesome' => 
   array (
-    'normal' => DOMPDF_FONT_DIR . '64abc3e3f2bc5902b307b25cb5e18fde',
+    'normal' => DOMPDF_FONT_DIR . 'd4ba67d2e939da9a6cacd667ca4402f1',
+  ),
+  'bauhaus' => 
+  array (
+    'normal' => DOMPDF_FONT_DIR . '3cdfa488ce81a77ce65534c9d1ff62ed',
   ),
 ) ?>
