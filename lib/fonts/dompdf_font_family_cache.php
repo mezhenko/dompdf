@@ -111,6 +111,9 @@
   'open sans' => 
   array (
     'normal' => DOMPDF_FONT_DIR . 'e5ba65ed6f2bef4821dd9ebfa44869ec',
+    'bold' => DOMPDF_FONT_DIR . 'b335551286a2f18cd07fe8f65506915d',
+    'bold_italic' => DOMPDF_FONT_DIR . '09acb2de5ef46a63f039d19ee1a173d3',
+    'italic' => DOMPDF_FONT_DIR . '5b2e9bf1b8878c07e2878aff39781657',
   ),
   'glyphicons halflings' => 
   array (
