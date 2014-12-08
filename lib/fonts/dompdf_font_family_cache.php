@@ -115,4 +115,8 @@
     'bold_italic' => DOMPDF_FONT_DIR . '66f9468ba07d4e7a4c30f52aecdd3416',
     'italic' => DOMPDF_FONT_DIR . 'e29809c0f37cc28afa8624c68d70fc56',
   ),
+  'fontawesome' => 
+  array (
+    'normal' => DOMPDF_FONT_DIR . '64abc3e3f2bc5902b307b25cb5e18fde',
+  ),
 ) ?>
