@@ -4082,7 +4082,7 @@ EOT;
     //if already cached, need not to read again
     if ( isset($this->imagelist[$file]) ) {
       $img = null;
-    } 
+    }
 
     else {
       $info = file_get_contents ($file, false, null, 24, 5);

@@ -14,6 +14,7 @@ if ( class_exists( 'DOMPDF' , false ) ) { return; }
 PHP_VERSION >= 5.0 or die("DOMPDF requires PHP 5.0+");
 
 define('IMAGETYPE_SVG',100);
+define('IMAGETYPE_JSONGRAPH',101);
 
 /**
  * The root of your DOMPDF installation

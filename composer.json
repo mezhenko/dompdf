@@ -19,9 +19,19 @@
         }
     ],
     "autoload": {
-        "classmap": ["include/"]
+        "classmap": ["include/"],
+        "psr-4": {
+            "Personado\\": ["lib/Personado/"]
+        },
+        "files": [
+            "lib/jpgraph/src/jpgraph.php",
+            "lib/jpgraph/src/jpgraph_line.php",
+            "lib/jpgraph/src/jpgraph_bar.php",
+            "lib/jpgraph/src/jpgraph_pie.php"
+        ]
     },
     "require": {
-        "phenx/php-font-lib": "0.3.*"
+        "phenx/php-font-lib": "0.3.*",
+        "firephp/firephp-core": "v0.4.0"
     }
 }

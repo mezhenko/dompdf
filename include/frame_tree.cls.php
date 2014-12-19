@@ -177,7 +177,8 @@ class Frame_Tree {
         case 'svg':
             /** @var DOMElement $node; */
             if($node->hasChildNodes()){
-                $node->setAttribute('src','data:image/svg+xml,'.self::exportOuterXML($node));
+                $exportOuterXML = self::exportOuterXML($node);
+                $node->setAttribute('src','data:image/svg+xml,'. $exportOuterXML);
             }
             $frame = new Frame($node);
             $id = $frame->get_id();

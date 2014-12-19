@@ -326,16 +326,64 @@ function is_percent($value) {
  *
  * @return array The result with charset, mime type and decoded data
  */
+function decode_data($encoding,$data){
+  switch($encoding){
+    case 'base64':
+      return base64_decode($data);
+      break;
+    case 'json':
+      return json_decode($data);
+      break;
+    default:
+      return $data;
+  }
+}
+
+function produce($mime,$data){
+  switch($mime){
+    case 'text/json-piechart':
+    case 'text/json-barchart':
+      $graphbasesize = DOMPDF_QUICKFIX_GRAPH_BASE_DPI * DOMPDF_CM_TO_INCH * 5;
+      $width = $graphbasesize * DOMPDF_QUICKFIX_GRAPH_PROPORTIONS;
+      $height = $width * (1/DOMPDF_QUICKFIX_GRAPH_PROPORTIONS);
+
+      if(isset($data->dataSource)){
+        $gd = \Personado\Graph_Render::drawBar(
+            new \Personado\Graph_Options(
+                $data->dataSource,
+                null,
+                $width,
+                $height
+            )
+        );
+        ob_start();
+          imagepng($gd);
+          $stringdata = ob_get_contents();
+        ob_end_clean();
+        return $stringdata;
+      }else{
+        return null;
+      }
+    default:
+      return $data;
+  }
+}
+
 function parse_data_uri($data_uri) {
-  if (!preg_match('/^data:(?P<mime>[a-z0-9\/+-.]+)(;charset=(?P<charset>[a-z0-9-])+)?(?P<base64>;base64)?\,(?P<data>.*)?/sim', $data_uri, $match)) {
+  if (!preg_match('/^data:(?P<mime>[a-z0-9\/+-.]+)(;charset=(?P<charset>[a-z0-9-])+)?;?(?P<base64>base64|json)?\,(?P<data>.*)?/sim', $data_uri, $match)) {
     return false;
   }
   
   $match['data'] = rawurldecode($match['data']);
+
+
+  $charset = $match['charset'] ? $match['charset'] : 'US-ASCII';
+  $mime = $match['mime'] ? $match['mime'] : 'text/plain';
+  $data = decode_data($match['base64'], $match['data']);
   $result = array(
-    'charset' => $match['charset'] ? $match['charset'] : 'US-ASCII',
-    'mime'    => $match['mime'] ? $match['mime'] : 'text/plain',
-    'data'    => $match['base64'] ? base64_decode($match['data']) : $match['data'],
+    'charset' => $charset,
+    'mime'    => $mime,
+    'data'    => produce($mime,$data),
   );
   
   return $result;
@@ -812,7 +860,6 @@ function dompdf_getimagesize($filename) {
       case 'image/svg':
       case 'image/svg+xml':
           return $sizeCache[$filename] = get_svg_data(file_get_contents($filename));
-
       default:
           list($width, $height, $type) = getimagesize($filename);
 

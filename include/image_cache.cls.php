@@ -55,7 +55,6 @@ class Image_Cache {
     $enable_remote = $dompdf->get_option("enable_remote");
 
     try {
-      
       // Remote not allowed and is not DataURI
       if ( !$enable_remote && $remote && !$data_uri ) {
         throw new DOMPDF_Image_Exception("DOMPDF_ENABLE_REMOTE is set to FALSE");
@@ -66,48 +65,32 @@ class Image_Cache {
         // Download remote files to a temporary directory
         $full_url = build_url($protocol, $host, $base_path, $url);
   
+        // fun $full_url -> $resolved_url
         // From cache
         if ( isset(self::$_cache[$full_url]) ) {
           $resolved_url = self::$_cache[$full_url];
-        }
-        
-        // From remote
-        else {
+        } else {
           $tmp_dir = $dompdf->get_option("temp_dir");
           $resolved_url = tempnam($tmp_dir, "ca_dompdf_img_");
-          $image = "";
 
           if ($data_uri) {
-            if ($parsed_data_uri = parse_data_uri($url)) {
-              $image = $parsed_data_uri['data'];
+            $parsed_data_uri = parse_data_uri($url);
+            if ($parsed_data_uri['data']) {
+              file_put_contents($resolved_url, $parsed_data_uri['data']);
+            }else{
+              throw new DOMPDF_Image_Exception("Data-URI could not be parsed");
+            }
+          }else{
+            $remoteContents = file_get_contents($full_url);
+            if($remoteContents){
+              file_put_contents($resolved_url, $remoteContents);
+            }else{
+              throw new DOMPDF_Image_Exception("Image could not be opened");
             }
           }
-          else {
-            set_error_handler("record_warnings");
-            $image = file_get_contents($full_url);
-            restore_error_handler();
-          }
-  
-          // Image not found or invalid
-          if ( strlen($image) == 0 ) {
-            $msg = ($data_uri ? "Data-URI could not be parsed" : "Image not found");
-            throw new DOMPDF_Image_Exception($msg);
-          }
-          
-          // Image found, put in cache and process
-          else {
-            //e.g. fetch.php?media=url.jpg&cache=1
-            //- Image file name might be one of the dynamic parts of the url, don't strip off!
-            //- a remote url does not need to have a file extension at all
-            //- local cached file does not have a matching file extension
-            //Therefore get image type from the content
-            file_put_contents($resolved_url, $image);
-          }
+
         }
-      }
-      
-      // Not remote, local image
-      else {
+      } else {
         $resolved_url = build_url($protocol, $host, $base_path, $url);
       }
   
@@ -115,31 +98,23 @@ class Image_Cache {
       if ( !is_readable($resolved_url) || !filesize($resolved_url) ) {
         throw new DOMPDF_Image_Exception("Image not readable or empty");
       }
-      
-      // Check is the file is an image
-      else {
-        list($width, $height, $type) = dompdf_getimagesize($resolved_url);
-        
-        // Known image type
-        if ( $width && $height ){
-            if ($enable_remote && $remote || $data_uri) {
-                self::$_cache[$full_url] = $resolved_url;
+
+
+      list($width, $height, $type) = dompdf_getimagesize($resolved_url);
+      // Known image type
+      switch($type) {
+        case IMAGETYPE_GIF:
+        case IMAGETYPE_PNG:
+        case IMAGETYPE_JPEG:
+        case IMAGETYPE_SVG:
+        case IMAGETYPE_JSONGRAPH:
+        case IMAGETYPE_BMP:
+            if($remote || $data_uri) {
+              self::$_cache[$full_url] = $resolved_url;
             }
-            switch($type) {
-                case IMAGETYPE_GIF:
-                case IMAGETYPE_PNG:
-                case IMAGETYPE_JPEG:
-                case IMAGETYPE_SVG:
-                case IMAGETYPE_BMP:
-                    //Don't put replacement image into cache - otherwise it will be deleted on cache cleanup.
-                    //Only execute on successful caching of remote image.
-                    break;
-                default:
-                    throw new DOMPDF_Image_Exception("Image type unsupported");
-            }
-        }else{
-            throw new DOMPDF_Image_Exception("Image type unknown");
-        }
+            break;
+        default:
+            throw new DOMPDF_Image_Exception("Image type unsupported");
       }
     }
     catch(DOMPDF_Image_Exception $e) {

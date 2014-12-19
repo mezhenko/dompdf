@@ -9,7 +9,7 @@ define("DOMPDF_DEFAULT_MEDIA_TYPE", "print");
 define("DOMPDF_DEFAULT_PAPER_SIZE", "A4");
 //define("DOMPDF_DEFAULT_FONT", "serif");
 define("DOMPDF_DPI", 100);
-define("DOMPDF_SVG_SUPERSAMPLE", 4);
+define("DOMPDF_SVG_SUPERSAMPLE", 3);
 //define("DOMPDF_ENABLE_PHP", true);
 define("DOMPDF_ENABLE_REMOTE", true);
 //define("DOMPDF_ENABLE_CSS_FLOAT", true);
@@ -29,3 +29,8 @@ define("DOMPDF_ENABLE_FONTSUBSETTING", false);
 // DOMPDF authentication
 //define("DOMPDF_ADMIN_USERNAME", "user");
 //define("DOMPDF_ADMIN_PASSWORD", "password");
+
+// Dirty quick fix for constant graph size
+define("DOMPDF_QUICKFIX_GRAPH_PROPORTIONS", 82/60);
+define("DOMPDF_QUICKFIX_GRAPH_BASE_DPI", 50);
+define("DOMPDF_CM_TO_INCH", 2.540);
