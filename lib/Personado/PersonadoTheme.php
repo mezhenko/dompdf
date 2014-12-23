@@ -20,7 +20,6 @@ class PersonadoTheme extends Theme
     private $background_color = '#ffffff';
     private $axis_color       = '#888888';
     private $grid_color       = '#E3E3E3';
-    private static $font_size = 20;
 
     function GetColorList() {
         return array(
@@ -73,7 +72,6 @@ class PersonadoTheme extends Theme
         $graph->xaxis->SetLabelMargin(10);
         $graph->xaxis->HideTicks();
         $graph->xaxis->SetTitleMargin(15);
-        //$graph->xaxis->SetLabelMargin(self::$font_size);
                 
         // yaxis
         $graph->yaxis->title->SetFont(FF_OPENSANS);
@@ -130,13 +128,6 @@ class PersonadoTheme extends Theme
 
 
     function PreStrokeApply(Graph $graph) {
-        $graph->title->SetFont(FF_OPENSANS,FS_NORMAL,self::$font_size);
-        $graph->subtitle->SetFont(FF_OPENSANS);
-        $graph->subsubtitle->SetFont(FF_OPENSANS);
-        $graph->yaxis->SetFont(FF_OPENSANS,FS_NORMAL,self::$font_size);
-        $graph->yaxis->SetLabelMargin(self::$font_size);
-        $graph->xaxis->SetFont(FF_OPENSANS,FS_NORMAL,self::$font_size);
-        $graph->xaxis->SetLabelMargin(self::$font_size);
         if ($graph->legend->HasItems()) {
             $img = $graph->img;
             $height = $img->height;
@@ -177,7 +168,6 @@ class PersonadoTheme extends Theme
                 $plot->Clear();
 
                 $color = $this->GetNextColor();
-                $plot->value->SetFont(FF_OPENSANS, FS_BOLD,15);
                 $plot->value->SetMargin(8);
                 $plot->SetColor($color);
                 $plot->SetFillColor($color);
@@ -187,7 +177,6 @@ class PersonadoTheme extends Theme
             case $plot instanceof LinePlot:
             {
                 $plot->Clear();
-                $plot->value->SetFont(FF_OPENSANS, FS_BOLD,15);
                 $plot->value->SetMargin(25);
                 $plot->SetColor($this->GetNextColor().'@0.4');
                 $plot->SetWeight(2);

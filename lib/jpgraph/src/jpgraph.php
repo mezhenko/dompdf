@@ -4087,11 +4087,7 @@ class Axis extends AxisPrototype {
                 }
 
                 if( $this->scale->type == "x" ) {
-                    if($nbr>3){
-                        $tick_label_margin = $this->tick_label_margin + (($this->font_size + $this->tick_label_margin + 5) *($i%2));
-                    }else{
-                        $tick_label_margin = $this->tick_label_margin;
-                    }
+                    $tick_label_margin = $this->tick_label_margin;
                     if( $this->labelPos == SIDE_DOWN ) {
                         if( $this->label_angle==0 || $this->label_angle==90 ) {
                             if( $this->label_halign=='' && $this->label_valign=='') {

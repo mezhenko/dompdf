@@ -32,6 +32,7 @@
     },
     "require": {
         "phenx/php-font-lib": "0.3.*",
-        "firephp/firephp-core": "v0.4.0"
+        "firephp/firephp-core": "v0.4.0",
+        "lstrojny/functional-php": "dev-master"
     }
 }
