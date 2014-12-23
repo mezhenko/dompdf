@@ -11,6 +11,7 @@ namespace Personado;
 use BarPlot;
 use Graph;
 
+const PSEUDOINF = 0xfffffffe;
 
 function break_lines(array $labels){
     return array_map(function($label){
@@ -18,18 +19,28 @@ function break_lines(array $labels){
         $labelLength = mb_strlen($label);
         if($labelLength > 30){
             $mid = round($labelLength / 2);
+
+            $leftPart = substr($label,0,$mid);
             $rightPart = substr($label,$mid);
 
-            $break = strpos($rightPart,' ');
-            if($break === false){
-                $leftPart = substr($label,0,$mid);
-                $break = strrpos($leftPart,' ');
-            }
-            if($break === false){
-                $break = $mid;
+            $breakL = strrpos($leftPart,' ');
+            $breakR = strpos($rightPart,' ');
+
+
+
+            /*
+             * Distance from middle
+             */
+            $va = mb_strlen($leftPart) - $breakL === false ? PSEUDOINF : $breakL;
+            $vb = $breakR === false ? PSEUDOINF : $breakR;
+
+            if($va < $vb){
+                $break = $mid - $va;
+            }else{
+                $break = $mid + $vb;
             }
 
-            $ret = substr($label,0,$mid+$break)."\n".substr($label,$mid+1+$break);
+            $ret = substr($label,0,$break)."\n".substr($label,$break+1);
             if(mb_strlen($ret)>50){
                 $ret = substr($ret,0,47)."...";
             }
@@ -46,6 +57,7 @@ function break_lines(array $labels){
  * @return array
  */
 function get_bbox($label, $fontSize){
+    $label = str_replace("\n"," ",$label);
     $textbox = imagettfbbox($fontSize, 0, DOMPDF_FONT_DIR . 'OpenSans-Regular.ttf', $label);
     return [
         $textbox[2],
@@ -53,7 +65,7 @@ function get_bbox($label, $fontSize){
     ];
 }
 
-function prepare_labels($labels, $graphAreaX,$fontSize = 20){
+function prepare_labels($labels, $graphAreaX, $graphAreaY,$fontSize = 20){
     $mapBbox = function($fontSize){
         return function ($label) use ($fontSize) {
             return get_bbox($label, $fontSize);
@@ -82,13 +94,16 @@ function prepare_labels($labels, $graphAreaX,$fontSize = 20){
         return max($margin,$bbox[0]*sin($textAngle)+$bbox[1]*cos($textAngle));
     },0);
 
-    $maxLabelLength  = ($graphAreaX-$leftMargin)/count($labels) - 20;
-    if(\Functional\first($bboxes,function($bbox)use($maxLabelLength){
-        return $bbox[1] > $maxLabelLength;
-    })) {
-        return prepare_labels($labels,$graphAreaX, $fontSize * (0.6));
+    $maxVerticalSize  = ($graphAreaX-$leftMargin)/count($labels) - $fontSize*2;
+    if(
+        $leftMargin > $graphAreaX*0.4 or
+        $bottomMargin > $graphAreaY*0.4 or
+        ($textAngle and \Functional\first($bboxes,function($bbox)use($maxVerticalSize){
+        return $bbox[1] > $maxVerticalSize;
+    }))) {
+        return prepare_labels($labels,$graphAreaX,$graphAreaY, $fontSize - 3);
     }else{
-        return [$brokenLabels, $fontSize, $textAngle, $leftMargin, $bottomMargin];
+        return [$brokenLabels, $fontSize, $textAngle, $leftMargin, $bottomMargin, $maxLabelLength];
     }
 
 }
@@ -149,8 +164,8 @@ class Graph_Render {
 
         $maxval = max($ydata);
 
-        list($newLabels, $fontSize, $textAngle, $leftMargin, $bottomMargin) =
-            prepare_labels($labels, $width - 100);
+        list($newLabels, $fontSize, $textAngle, $leftMargin, $bottomMargin, $maxLabelLength) =
+            prepare_labels($labels, $width - 100, $height - 20);
 
 
         \FB::log($newLabels);
@@ -168,7 +183,7 @@ class Graph_Render {
         $graph->yaxis->SetFont(FF_OPENSANS,FS_NORMAL,20);
         $graph->yaxis->SetLabelMargin(20);
         $graph->xaxis->SetFont(FF_OPENSANS,FS_NORMAL,$fontSize);
-        $graph->xaxis->SetLabelMargin(10);
+        $graph->xaxis->SetLabelMargin($fontSize/2);
         $graph->xaxis->SetLabelAngle($textAngle);
 
 
@@ -184,7 +199,10 @@ class Graph_Render {
         $lineplot->value->SetFormatCallback($formatFlValue);
         $lineplot->value->SetColor('#5f8b95');
         $lineplot->value->Show(true);
-        $lineplot->value->SetFont(FF_OPENSANS, FS_BOLD,$fontSize*(0.6));
+
+        $valueLabelSize = min($maxLabelLength / 3, $fontSize*(0.75));
+        $lineplot->value->SetMargin($valueLabelSize/3);
+        $lineplot->value->SetFont(FF_OPENSANS, FS_BOLD, $valueLabelSize);
 
         if($textAngle){
             $lineplot->value->SetAlign('right','top');

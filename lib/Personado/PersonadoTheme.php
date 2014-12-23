@@ -69,7 +69,6 @@ class PersonadoTheme extends Theme
         $graph->xaxis->title->SetColor($this->font_color);
         $graph->xaxis->SetColor($this->axis_color, $this->font_color);
         $graph->xaxis->SetTickSide(SIDE_BOTTOM);
-        $graph->xaxis->SetLabelMargin(10);
         $graph->xaxis->HideTicks();
         $graph->xaxis->SetTitleMargin(15);
                 
@@ -168,7 +167,6 @@ class PersonadoTheme extends Theme
                 $plot->Clear();
 
                 $color = $this->GetNextColor();
-                $plot->value->SetMargin(8);
                 $plot->SetColor($color);
                 $plot->SetFillColor($color);
                 break;
@@ -177,7 +175,6 @@ class PersonadoTheme extends Theme
             case $plot instanceof LinePlot:
             {
                 $plot->Clear();
-                $plot->value->SetMargin(25);
                 $plot->SetColor($this->GetNextColor().'@0.4');
                 $plot->SetWeight(2);
                 break;
@@ -186,7 +183,6 @@ class PersonadoTheme extends Theme
             case $plot instanceof PiePlot:
             {
                 $plot->SetCenter(0.5, 0.45);
-                $plot->value->SetFont(FF_OPENSANS);
                 $plot->ShowBorder(false);
                 $plot->SetSliceColors($this->GetThemeColors());
                 break;
