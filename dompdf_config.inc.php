@@ -35,7 +35,7 @@ define("DOMPDF_LIB_DIR", DOMPDF_DIR . "/lib");
  */
 define("DOMPDF_TMP_DIR", sys_get_temp_dir());
 
-define("DOMPDF_VENDOR_DIR", DOMPDF_DIR . "/vendor");
+define("DOMPDF_VENDOR_DIR", DOMPDF_DIR . "/../../");
 /**
  * Some installations don't have $_SERVER['DOCUMENT_ROOT']
  * http://fyneworks.blogspot.com/2007/08/php-documentroot-in-iis-windows-servers.html
